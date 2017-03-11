@@ -18,6 +18,7 @@ indirect public enum AnyQuery {
     case lessThan(key: String, value: Any)
     case lessThanOrEqual(key: String, value: Any)
     case `in`(key: String, values: [Any])
+    case notIn(key: String, values: [Any])
     case between(key: String, lhs: Any, rhs: Any)
 
     public var predicate: NSPredicate {
@@ -44,6 +45,9 @@ indirect public enum AnyQuery {
         case .in(let key, let values):
             let joinedValues = values.map { String(describing: $0) }.joined(separator: ",")
             return NSPredicate(format: "\(key) IN { \(joinedValues) }")
+        case .notIn(let key, let values):
+            let joinedValues = values.map { String(describing: $0) }.joined(separator: ",")
+            return NSPredicate(format: "\(key) NOT IN { \(joinedValues) }")
         case .between(let key, let lhs, let rhs):
             return NSPredicate(format: "\(key) BETWEEN { \(lhs), \(rhs) }")
         }
@@ -72,6 +76,8 @@ indirect public enum AnyQuery {
             return NSPredicate(format: "\(key) <= %@", argumentArray: [value])
         case .in(let key, let values):
             return NSPredicate(format: "\(key) IN %@", argumentArray: values)
+        case .notIn(let key, let values):
+            return NSPredicate(format: "NOT \(key) IN %@", argumentArray: values)
         case .between(let key, let lhs, let rhs):
             return NSPredicate(format: "\(key) BETWEEN %@", argumentArray: [lhs, rhs])
         }
@@ -94,6 +100,8 @@ indirect public enum AnyQuery {
         case .lessThanOrEqual(let key, let value):
             return [key: value]
         case .in(let key, let values):
+            return [key: values as Any]
+        case .notIn(let key, let values):
             return [key: values as Any]
         case .between(let key, let lhs, _):
             return [key: lhs]
