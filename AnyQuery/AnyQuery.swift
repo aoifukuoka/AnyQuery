@@ -48,7 +48,35 @@ indirect public enum AnyQuery {
             return NSPredicate(format: "\(key) BETWEEN { \(lhs), \(rhs) }")
         }
     }
-    
+
+    public var realmPredicate: NSPredicate {
+        switch self {
+        case .tree(let query1, let logic, let query2):
+            switch logic {
+            case .and:
+                return NSCompoundPredicate(andPredicateWithSubpredicates: [query1.predicate, query2.predicate])
+            case .or:
+                return NSCompoundPredicate(orPredicateWithSubpredicates: [query1.predicate, query2.predicate])
+            }
+        case .equal(let key, let value):
+            return NSPredicate(format: "\(key) == %@", argumentArray: [value])
+        case .notEqual(let key, let value):
+            return NSPredicate(format: "\(key) != %@", argumentArray: [value])
+        case .greaterThan(let key, let value):
+            return NSPredicate(format: "\(key) > %@", argumentArray: [value])
+        case .greaterThanOrEqual(let key, let value):
+            return NSPredicate(format: "\(key) >= %@", argumentArray: [value])
+        case .lessThan(let key, let value):
+            return NSPredicate(format: "\(key) < %@", argumentArray: [value])
+        case .lessThanOrEqual(let key, let value):
+            return NSPredicate(format: "\(key) <= %@", argumentArray: [value])
+        case .in(let key, let values):
+            return NSPredicate(format: "\(key) IN %@", argumentArray: values)
+        case .between(let key, let lhs, let rhs):
+            return NSPredicate(format: "\(key) BETWEEN %@", argumentArray: [lhs, rhs])
+        }
+    }
+
     public var dictionary: [String: Any] {
         switch self {
         case .tree(let query1, _, let query2):
